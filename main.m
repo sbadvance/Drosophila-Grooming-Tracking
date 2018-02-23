@@ -1,4 +1,19 @@
-function main(Xinitial,Xinterval,Yinitial,Yinterval,fullname,NumberofFiles,savepathname)
+function main(Xinitial,Xinterval,Yinitial,Yinterval,fullname,NumberofFiles,savepathname) 
+    % This is the main function for Drosophila-Grooming-Tracking
+    % Drosophila-Grooming-Tracking
+    % Copyright 2017, Bing Qiao, Department of Physics, University of Miami
+    % b.qiao@umiami.edu
+
+    % This program is free software: you can redistribute it and/or modify
+    % it under the terms of the GNU General Public License as published by
+    % the Free Software Foundation, either version 3 of the License, or
+    % (at your option) any later version.
+
+    % This program is distributed in the hope that it will be useful,
+    % but WITHOUT ANY WARRANTY; without even the implied warranty of
+    % MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    % GNU General Public License for more details.
+
     % Analyzing videos, extract features, classify behaviors into grooming,
     % locomotion, and rest and save positions and grooming events to .txt
     % files
