@@ -20,7 +20,7 @@ Download and put the folder of latest version under Matlab path. Then follow the
 up software and extracting grooming.
 
 GroomingDetector_v2 update information：
-  --Fixed bugs in v1.
-  --Imporved the algorithm so that it is more robust to noise and different lighting conditions.
-  --Parallel computing is supported in v2 which enables analyzing multiple videos at the same time (number of videos depends on the number of cores of cpu). Matlab Parallel Computing Toolbox is required.
+  Fixed bugs in v1.
+  Imporved the algorithm so that it is more robust to noise and different lighting conditions.
+  Parallel computing is supported in v2 which enables analyzing multiple videos at the same time (number of videos depends on the number of cores of cpu). Matlab Parallel Computing Toolbox is required.
 
