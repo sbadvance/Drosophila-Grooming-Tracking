@@ -19,7 +19,7 @@ ________________________________________________________________________________
 Download and put the folder of latest version under Matlab path. Then follow the instructions in 'Handbook.docx' to set
 up software and extracting grooming.
 
-GroomingDetector_v2 update information：
+GroomingDetector_v2 update information (Nov-12-2018)：
 
 -Fixed bugs in v1;
 
