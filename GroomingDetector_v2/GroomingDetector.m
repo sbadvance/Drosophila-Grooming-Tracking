@@ -22,7 +22,7 @@ function varargout = GroomingDetector(varargin)
 
 % Edit the above text to modify the response to help GroomingDetector
 
-% Last Modified by GUIDE v2.5 20-Jul-2017 13:48:14
+% Last Modified by GUIDE v2.5 12-Nov-2018 14:33:57
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -66,7 +66,16 @@ global AnalyzingRate;
 global Nrow;
 global Ncolumn;
 global TransVideo;
-load('Parameters')
+
+Parameters = load('Parameters');
+C0 = Parameters.C0; % Threshold C0
+C1 = Parameters.C1; % Threshold C1
+FrameRate = Parameters.FrameRate; % Original framerate in video
+AnalyzingRate = Parameters.AnalyzingRate; % Output framerate
+Nrow = Parameters.Nrow; % # of Rows of tubes
+Ncolumn = Parameters.Ncolumn; % # of Columns of tubes
+TransVideo = Parameters.TransVideo; % 1: Transpose videos; 0: No transposition
+
 % UIWAIT makes GroomingDetector wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
@@ -88,9 +97,9 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-global mov;
-global NumberofFiles;
-global fullname;
+global mov; %The viode reader object for reading frames from a video in matlab
+global NumberofFiles; %Number of video files selected for processing
+global fullname; %list of directory + file names of all videos
 [filename, pathname] = uigetfile('*.*', 'Pick a video','MultiSelect','on');
 
     if iscell(filename)
@@ -106,7 +115,6 @@ global fullname;
     set(handles.text3,'string',['Video files:',filename]); 
     set(handles.text2,'string','Loadinging videos');
     mov=VideoReader(char(fullname(1)));
-%     Nframe=get(mov, 'NumberOfFrames');
     set(handles.text2,'string','Videos loaded');
 
 
@@ -145,13 +153,16 @@ function pushbutton3_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton3 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+% --- positions of set of horizontal and verticle lines to split tubes
+global Yinterval; % Space between each two horizontal lines (in # of pixels)
+global Xinterval; % Space between each two vertical lines (in # of pixels)
+global Yinitial; % Position of the first horizontal line from top
+global Xinitial; % Position of the first vertical line from left
+global Xend; % Vertical size of a frame (in # of pixels)
+global Yend; % Honrizontal size of a frame (in # of pixels)
+%---------------------------------------------------------------------
 global mov;
-global Yinterval;
-global Xinterval;
-global Yinitial;
-global Xinitial;
-global Xend;
-global Yend;
 global Nrow;
 global Ncolumn;
 global TransVideo;
@@ -161,23 +172,25 @@ SampleFrame = rgb2gray(SampleFrame);
 if TransVideo==1
     SampleFrame=SampleFrame';
 end
-ResolVideo = size(SampleFrame);
+ResolVideo = size(SampleFrame)
 Xend=ResolVideo(2);
 Yend=ResolVideo(1);
-Yinterval=floor(Yend/30);
-Yinitial=1;
-Xinterval=floor(Xend/4);
-Xinitial=1;
-    for yn=1:1:Nrow+1
-        if Yinitial+(yn-1)*Yinterval+1<Yend-1
-             SampleFrame(Yinitial+(yn-1)*Yinterval:Yinitial+(yn-1)*Yinterval+1,Xinitial:min(Xend,Xinitial+Ncolumn*Xinterval))=255;
-        end
+Yinterval=floor(Yend/30); % initial value in preview
+Yinitial=1; % initial value in preview
+Xinterval=floor(Xend/4); % initial value in preview
+Xinitial=1; % initial value in preview
+
+% --- Draw white lines on preview frame
+for yn=1:1:Nrow+1
+    if Yinitial+(yn-1)*Yinterval+1<Yend-1
+         SampleFrame(Yinitial+(yn-1)*Yinterval:Yinitial+(yn-1)*Yinterval+1,Xinitial:min(Xend,Xinitial+Ncolumn*Xinterval))=255;
     end
-    for xn=1:1:Ncolumn+1
-        if Xinitial+(xn-1)*Xinterval+1<Xend-1
-             SampleFrame(Yinitial:min(Yend,Yinitial+Nrow*Yinterval),Xinitial+(xn-1)*Xinterval:Xinitial+(xn-1)*Xinterval+1)=255;
-        end
+end
+for xn=1:1:Ncolumn+1
+    if Xinitial+(xn-1)*Xinterval+1<Xend-1
+         SampleFrame(Yinitial:min(Yend,Yinitial+Nrow*Yinterval),Xinitial+(xn-1)*Xinterval:Xinitial+(xn-1)*Xinterval+1)=255;
     end
+end
 axes(handles.axes1); 
 imshow(SampleFrame);
 
@@ -432,7 +445,12 @@ global Yinterval;
 global Xinterval;
 global Yinitial;
 global Xinitial;
-main(Xinitial,Xinterval,Yinitial,Yinterval,fullname,NumberofFiles,savepathname)
+ParaComp = get(handles.checkbox1,'Value');
+if ParaComp == 1
+    mainPara(Xinitial,Xinterval,Yinitial,Yinterval,fullname,NumberofFiles,savepathname);
+else
+    mainNonPara(Xinitial,Xinterval,Yinitial,Yinterval,fullname,NumberofFiles,savepathname);
+end
 
 % --- Executes during object creation, after setting all properties.
 function text8_CreateFcn(hObject, eventdata, handles)
@@ -476,3 +494,12 @@ global Xinterval;
 global Yinitial;
 global Xinitial;
 SetTrainingSamples(Xinitial,Xinterval,Yinitial,Yinterval);
+
+
+% --- Executes on button press in checkbox1.
+function checkbox1_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkbox1
